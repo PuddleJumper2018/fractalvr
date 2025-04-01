@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the Excel file
+file_path = "/Users/jiaonahu/Documents/mpib/fractalvr-writting/rating.xlsx"  # <-- Change this path if needed
+df = pd.read_excel(file_path)
+
+# Rename relevant columns for readability
+column_mapping = {
+    'v_130': 'A1_Liking', 'v_131': 'A1_Naturalness', 'v_143': 'A1_ApproachAvoid', 'v_134': 'A1_Stress', 'v_135': 'A1_Relaxation',
+    'v_136': 'A2_Liking', 'v_137': 'A2_Naturalness', 'v_144': 'A2_ApproachAvoid', 'v_139': 'A2_Stress', 'v_140': 'A2_Relaxation',
+    'v_141': 'A3_Liking', 'v_142': 'A3_Naturalness', 'v_145': 'A3_ApproachAvoid', 'v_146': 'A3_Stress', 'v_147': 'A3_Relaxation',
+    'v_148': 'B1_Liking', 'v_149': 'B1_Naturalness', 'v_150': 'B1_ApproachAvoid', 'v_151': 'B1_Stress', 'v_152': 'B1_Relaxation',
+    'v_153': 'B2_Liking', 'v_154': 'B2_Naturalness', 'v_155': 'B2_ApproachAvoid', 'v_156': 'B2_Stress', 'v_157': 'B2_Relaxation',
+    'v_158': 'B3_Liking', 'v_159': 'B3_Naturalness', 'v_160': 'B3_ApproachAvoid', 'v_161': 'B3_Stress', 'v_162': 'B3_Relaxation'
+}
+
+df = df.rename(columns=column_mapping)
+df_data = df.drop(columns=[df.columns[0]])
+
+# Prepare dimensions and image types
+dimensions = ['Liking', 'Naturalness', 'ApproachAvoid', 'Stress', 'Relaxation']
+old_labels = ['A1', 'A2', 'A3', 'B1', 'B2', 'B3']
+new_labels = ['L-E', 'M-E', 'H-E', 'L-S', 'M-S', 'H-S']
+
+# Collect mean values per dimension per image type
+plot_values = {dim: [] for dim in dimensions}
+for img in old_labels:
+    for dim in dimensions:
+        col_name = f"{img}_{dim}"
+        plot_values[dim].append(df[col_name].mean())
+
+# Plot
+x = range(len(new_labels))
+bar_width = 0.15
+colors = ['orange', '#ff5722', '#e91e63', '#ff69b4', '#00bfff']  # Custom colors
+
+plt.figure(figsize=(12, 6))
+for i, (dimension, values) in enumerate(plot_values.items()):
+    plt.bar([p + i * bar_width for p in x], values, width=bar_width, label=dimension, color=colors[i])
+
+plt.xticks([p + 2 * bar_width for p in x], new_labels)
+plt.ylabel("Average Rating")
+plt.title("Comparison of Perceptual Dimensions Across Fractal Image Types")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+
+# Save as PNG
+plt.savefig("fractal_ratings_comparison_labeled.png", dpi=300)
+plt.show()
